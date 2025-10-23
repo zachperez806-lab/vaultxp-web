@@ -1,41 +1,46 @@
-export const dynamic = 'force-dynamic';      // 👈 disable static generation
-export const revalidate = 0;                 // 👈 ensure no caching
+"use client";
+import { useEffect, useState } from "react";
 
-async function getWallet() {
-  try {
-    const res = await fetch('https://vaultxp-api.onrender.com/wallet', { cache: 'no-store' });
-    if (!res.ok) return null;
-    return res.json();
-  } catch {
-    return null;
+const API = "https://vaultxp-api.onrender.com";
+
+export default function WalletPage() {
+  const [wallet, setWallet] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  async function loadWallet() {
+    try {
+      const res = await fetch(`${API}/wallet`, { cache: "no-store" });
+      const data = await res.json();
+      setWallet(data);
+    } catch {
+      setWallet(null);
+    } finally {
+      setLoading(false);
+    }
   }
-}
 
-export default async function WalletPage() {
-  const wallet = await getWallet();
+  useEffect(() => {
+    loadWallet();
+  }, []);
 
-  if (!wallet) {
-    return (
-      <main>
-        <h1>Wallet</h1>
-        <p>Temporarily unavailable. Please refresh in a moment.</p>
-      </main>
-    );
-  }
+  if (loading) return <main style={{ padding: 20 }}><h1>Wallet</h1><p>Loading…</p></main>;
+  if (!wallet) return <main style={{ padding: 20 }}><h1>Wallet</h1><p>Temporarily unavailable.</p></main>;
 
   return (
-    <main>
+    <main style={{ padding: 20 }}>
       <h1>Wallet</h1>
       <p><strong>Balance:</strong> ${(wallet.balance_cents / 100).toFixed(2)}</p>
+
       <h3>Recent Earnings</h3>
-      <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: 8 }}>
+      <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: 8 }}>
         {wallet.earnings.map(e => (
-          <li key={e.id} style={{ border: '1px solid #eee', padding: 10, borderRadius: 6 }}>
+          <li key={e.id} style={{ border: "1px solid #eee", padding: 10, borderRadius: 6 }}>
             <div><strong>{e.source}</strong></div>
             <div>+${(e.amount_cents / 100).toFixed(2)} on {e.date}</div>
           </li>
         ))}
       </ul>
+      <p style={{ marginTop: 12 }}><a href="/offers">Back to Offers →</a></p>
     </main>
   );
 }
