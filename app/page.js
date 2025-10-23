@@ -5,22 +5,30 @@ export default function HomePage() {
   const [status, setStatus] = useState("Checking...");
 
   async function checkAPI() {
+    const timestamp = new Date().toLocaleTimeString();
+    console.log(`[VaultXP] ${timestamp} - Checking API...`);
+
     try {
       const res = await fetch("https://vaultxp-api.onrender.com/health");
       const data = await res.json();
+      console.log(`[VaultXP] ${timestamp} - API Response:`, data);
+
       if (data.ok) {
         setStatus("Reachable ✅");
+        console.log(`[VaultXP] ${timestamp} - ✅ API Reachable`);
       } else {
         setStatus("Offline ❌");
+        console.warn(`[VaultXP] ${timestamp} - ⚠️ API Offline`);
       }
     } catch (err) {
       setStatus("Unreachable ❌");
+      console.error(`[VaultXP] ${timestamp} - ❌ API Unreachable`, err);
     }
   }
 
   useEffect(() => {
     checkAPI();
-    const retry = setTimeout(checkAPI, 4000); // retry once in 4s if backend was cold
+    const retry = setTimeout(checkAPI, 4000); // retry once if backend is waking up
     return () => clearTimeout(retry);
   }, []);
 
