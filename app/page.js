@@ -1,9 +1,10 @@
 export default function Home() {
   return (
-    <main style={{ padding: 24, fontFamily: 'system-ui, sans-serif' }}>
+    <main>
       <h1>VaultXP</h1>
       <p>Connected to backend. API status:</p>
       <pre id="status">Checking...</pre>
+      <p><a href="/offers">Go to Offers →</a></p>
       <script
         dangerouslySetInnerHTML={{
           __html: `
